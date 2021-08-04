@@ -1,46 +1,5 @@
 package schrodingo
 
-import "fmt"
-
-type any struct {
-}
-
-type Void interface {
-}
-
-/* --------------- */
-
-
-func DoSomething() Result[int] {
-	return Success(3)
-}
-
-func DoSomethingElse(input int) Result[float64] {
-	return Success(3.141592)
-}
-
-func DoOneLastThing(input float64) Result[string] {
-	return Success("3.141592")
-}
-
-func main() {
-	i := DoSomething()
-	f := Map(i, func(i int) Result[float64] {
-		return DoSomethingElse(i)
-	})
-	s := Map(f, func(f float64) Result[string] {
-		return DoOneLastThing(f)
-	})
-
-	s.Fold(func(s string) {
-		fmt.Println(s)
-	}, func(err error) {
-		panic(err)
-	})
-}
-
-/* --------------- */
-
 type Result[T any] struct {
 	v   interface{}
 	err error

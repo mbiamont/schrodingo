@@ -27,14 +27,6 @@ func (r Result[T]) IsSuccess() bool {
 	return r.v != nil
 }
 
-func (r Result[T]) get() *T {
-	if v, ok := r.v.(T); ok {
-		return &v
-	}
-
-	return nil
-}
-
 func (r Result[T]) GetOrElse(defaultValue T) T {
 	if r.IsSuccess() {
 		if v, ok := r.v.(T); ok {

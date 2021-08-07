@@ -1,5 +1,10 @@
 # Schrodingo
-Golang Result Monad library to easily manage errors
+Golang Result Monad library to easily manage errors.
+
+#### Why this name? 
+
+Using Schrodingo, a function can return a value which can be either a Sucess or a Failure.
+This makes me think about the Schrodinger's cat experience (where the cat was dead and alive at the same time).
 
 ## :warning: Warning :warning:
 

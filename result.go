@@ -45,7 +45,11 @@ func (r Result[T]) GetOrNil() *T {
 	return nil
 }
 
-func Map[T any, R any](result Result[T], mapper func(T) Result[R]) Result[R] {
+func (r Result[T]) ErrorOrNil() error {
+	return r.err
+}
+
+func ThenDo[T any, R any](result Result[T], mapper func(T) Result[R]) Result[R] {
 	if result.IsSuccess() {
 		if v, ok := result.v.(T); ok {
 			return mapper(v)

@@ -1,89 +1,35 @@
 package schrodingo
 
-type Result[T any] struct {
-	v   interface{}
-	err error
+type Result[T any] interface {
+	IsSuccess() bool
+	IsFailure() bool
+
+	GetOrElse(defaultValue T) T
+	GetOrNil() *T
+	ErrorOrNil() error
+
+	OnSuccess(onSuccess func(T)) Result[T]
+	OnFailure(onFailure func(error)) Result[T]
+	Fold(onSuccess func(T), onFailure func(error)) Result[T]
 }
 
 func Success[T any](value T) Result[T] {
-	output := new(Result[T])
+	output := new(success[T])
 	output.v = value
 
 	return *output
 }
 
 func Failure[T any](e error) Result[T] {
-	output := new(Result[T])
+	output := new(failure[T])
 	output.err = e
 
 	return *output
 }
 
-func (r Result[T]) IsFailure() bool {
-	return r.v == nil
-}
-
-func (r Result[T]) IsSuccess() bool {
-	return r.v != nil
-}
-
-func (r Result[T]) GetOrElse(defaultValue T) T {
-	if r.IsSuccess() {
-		if v, ok := r.v.(T); ok {
-			return v
-		}
-	}
-	return defaultValue
-}
-
-func (r Result[T]) GetOrNil() *T {
-	if r.IsSuccess() {
-		if v, ok := r.v.(T); ok {
-			return &v
-		}
-	}
-	return nil
-}
-
-func (r Result[T]) ErrorOrNil() error {
-	return r.err
-}
-
-func ThenDo[T any, R any](result Result[T], mapper func(T) Result[R]) Result[R] {
+func ThenDo[T any, R any](result Result[T], nextFunction func(T) Result[R]) Result[R] {
 	if result.IsSuccess() {
-		if v, ok := result.v.(T); ok {
-			return mapper(v)
-		}
+		return nextFunction(result.(success[T]).v)
 	}
-	return Failure[R](result.err)
-}
-
-func (r Result[T]) OnSuccess(onSuccess func(T)) Result[T] {
-	if r.IsSuccess() {
-		if v, ok := r.v.(T); ok {
-			onSuccess(v)
-		}
-	}
-
-	return r
-}
-
-func (r Result[T]) OnFailure(onFailure func(error)) Result[T] {
-	if r.IsFailure() {
-		onFailure(r.err)
-	}
-
-	return r
-}
-
-func (r Result[T]) Fold(onSuccess func(T), onFailure func(error)) Result[T] {
-	if r.IsSuccess() {
-		if v, ok := r.v.(T); ok {
-			onSuccess(v)
-		}
-	} else {
-		onFailure(r.err)
-	}
-
-	return r
+	return Failure[R](result.ErrorOrNil())
 }
